@@ -34,4 +34,10 @@ RSpec.describe GameQuestion, type: :model do
     expect(game_question.text).to eq(game_question.question.text)
     expect(game_question.level).to eq(game_question.question.level)
   end
+
+  it 'task 64-5 (correct_answer_key)' do
+    q = game_question
+    expect(q.correct_answer_key).to match(/a||b||c||d/)
+    expect(q.correct_answer).to eq(Question.find_by(text: q.text).answer1)
+  end
 end
