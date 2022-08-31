@@ -36,8 +36,6 @@ RSpec.describe GameQuestion, type: :model do
   end
 
   it 'task 64-5 (correct_answer_key)' do
-    q = game_question
-    expect(q.correct_answer_key).to match(/a||b||c||d/)
-    expect(q.correct_answer).to eq(Question.find_by(text: q.text).answer1)
+    expect(game_question.correct_answer_key).to eq("b")
   end
 end
