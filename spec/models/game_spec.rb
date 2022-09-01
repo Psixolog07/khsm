@@ -110,4 +110,19 @@ RSpec.describe Game, type: :model do
       expect(game_w_questions.status).to eq(:money)
     end
   end
+
+  context 'task 64-6' do
+    let(:testing_game) do
+      game_w_questions.answer_current_question!(game_w_questions.current_game_question.correct_answer_key)
+      game_w_questions
+    end
+
+    it 'current_game_question test' do
+      expect(testing_game.current_game_question.level).to eq(testing_game.current_level)
+    end
+
+    it 'previous_level test' do
+      expect(testing_game.previous_level).to eq(testing_game.current_level - 1)
+    end
+  end
 end
