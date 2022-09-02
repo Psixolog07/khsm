@@ -20,7 +20,7 @@ RSpec.describe Question, type: :model do
     it { should allow_value(14).for(:level) }
   end
 
-  context 'task 64-1' do
+  context 'validate_uniqueness_of question' do
     subject { Question.new(text: 'SomEthinG', level: 7, answer1: '1', answer2: '2', answer3: '3', answer4: '4') }
     it { should validate_uniqueness_of(:text) }
   end

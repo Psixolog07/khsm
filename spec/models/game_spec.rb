@@ -73,7 +73,7 @@ RSpec.describe Game, type: :model do
     end
   end
 
-  it 'task 64-3' do
+  it 'take_money! finishes the game' do
     q = game_w_questions.current_game_question
     game_w_questions.answer_current_question!(q.correct_answer_key)
     game_w_questions.take_money!
@@ -84,7 +84,7 @@ RSpec.describe Game, type: :model do
     expect(user.balance).to eq prize
   end
 
-  context 'task 64-4' do
+  context '.status' do
     before(:each) do
       game_w_questions.finished_at = Time.now
       expect(game_w_questions.finished?).to be_truthy
@@ -111,18 +111,11 @@ RSpec.describe Game, type: :model do
     end
   end
 
-  context 'task 64-6' do
-    let(:testing_game) do
-      game_w_questions.answer_current_question!(game_w_questions.current_game_question.correct_answer_key)
-      game_w_questions
-    end
+  it 'current_game_question test' do
+    expect(game_w_questions.current_game_question.level).to eq(game_w_questions.current_level)
+  end
 
-    it 'current_game_question test' do
-      expect(testing_game.current_game_question.level).to eq(testing_game.current_level)
-    end
-
-    it 'previous_level test' do
-      expect(testing_game.previous_level).to eq(testing_game.current_level - 1)
-    end
+  it 'previous_level test' do
+    expect(game_w_questions.previous_level).to eq(game_w_questions.current_level - 1)
   end
 end

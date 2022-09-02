@@ -30,12 +30,12 @@ RSpec.describe GameQuestion, type: :model do
     end
   end
   
-  it 'task 64-2' do
+  it 'correct .level & .text delegates' do
     expect(game_question.text).to eq(game_question.question.text)
     expect(game_question.level).to eq(game_question.question.level)
   end
 
-  it 'task 64-5 (correct_answer_key)' do
+  it 'correct_answer_key' do
     expect(game_question.correct_answer_key).to eq("b")
   end
 end
