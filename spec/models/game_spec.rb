@@ -118,4 +118,31 @@ RSpec.describe Game, type: :model do
   it 'previous_level test' do
     expect(game_w_questions.previous_level).to eq(game_w_questions.current_level - 1)
   end
+
+  context 'answer_current_question!' do
+    it 'correct_answer (not last)' do
+      game_w_questions.answer_current_question!("d")
+      expect(game_w_questions.current_level).to eq(1)
+      expect(game_w_questions.status).to eq(:in_progress)
+    end
+
+    it 'incorrect_answer' do
+      game_w_questions.answer_current_question!("a")
+      expect(game_w_questions.current_level).to eq(0)
+      expect(game_w_questions.status).to eq(:fail)
+    end
+
+    it 'correct_answer (last)' do
+      15.times { game_w_questions.answer_current_question!("d") }
+      expect(game_w_questions.current_level).to eq(15)
+      expect(game_w_questions.status).to eq(:won)
+    end
+
+    it 'timeout' do
+      game_w_questions.created_at = 1.hour.ago
+      game_w_questions.answer_current_question!("d")
+      expect(game_w_questions.current_level).to eq(0)
+      expect(game_w_questions.status).to eq(:timeout)
+    end
+  end
 end
