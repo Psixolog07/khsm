@@ -119,35 +119,78 @@ RSpec.describe Game, type: :model do
     expect(game_w_questions.previous_level).to eq(game_w_questions.current_level - 1)
   end
 
-  describe 'answer_current_question!' do
-    context 'when any question' do
-      it 'proceed to end of the game with :fail' do
-        game_w_questions.answer_current_question!("a")
-        expect(game_w_questions.current_level).to eq(0)
+  describe '#answer_current_question!' do
+    before { game_w_questions.answer_current_question!(answer_key) }
+
+    context 'when answer is correct' do
+      let!(:level) { 0 }
+      let!(:answer_key) { "d" }
+  
+      context 'and question is last' do
+        let!(:level) { 14 }
+        let!(:prize) { 1_000_000 }
+
+        let!(:game_w_questions_final) { 
+          14.times { 
+            game_w_questions.answer_current_question!(answer_key)
+          } 
+          
+          game_w_questions
+        }
+        
+  
+        it 'assigns final prize' do
+          expect(game_w_questions_final.prize).to eq(prize)
+        end
+
+        it 'finishes the game' do
+          expect(game_w_questions_final.finished?).to be_truthy
+        end
+  
+        it 'finishes game with status won' do
+          expect(game_w_questions_final.status).to eq(:won)
+        end
+      end
+  
+      context 'and question is not last' do
+        it 'moves to next level' do
+          expect(game_w_questions.current_level).to eq(level + 1)
+        end
+  
+        it 'continues game' do
+          expect(game_w_questions.finished?).to be_falsey
+        end
+        
+        it 'continues game with status in_progress' do
+          expect(game_w_questions.status).to eq(:in_progress)
+        end
+      end
+  
+      context 'and time is over' do
+        let!(:game_w_questions_overdue) { 
+          game_w_questions.created_at = 1.hour.ago
+          game_w_questions.time_out!
+          game_w_questions }
+
+        it 'finishes the game' do
+          expect(game_w_questions_overdue.finished?).to be_truthy
+        end
+  
+        it 'finishes game with status timeout' do
+          expect(game_w_questions_overdue.status).to eq(:timeout)
+        end
+      end
+    end
+  
+    context 'when answer is wrong' do
+      let!(:answer_key) { "a" }
+  
+      it 'finishes the game' do
+        expect(game_w_questions.finished?).to be_truthy
+      end
+  
+      it 'finishes with status fail' do
         expect(game_w_questions.status).to eq(:fail)
-      end
-
-      it 'proceed to end of the game with :timeout' do
-        game_w_questions.created_at = 1.hour.ago
-        game_w_questions.answer_current_question!("d")
-        expect(game_w_questions.current_level).to eq(0)
-        expect(game_w_questions.status).to eq(:timeout)
-      end
-    end
-
-    context 'when any but last question' do
-      it 'proceed to next level' do
-        game_w_questions.answer_current_question!("d")
-        expect(game_w_questions.current_level).to eq(1)
-        expect(game_w_questions.status).to eq(:in_progress)
-      end
-    end
-
-    context 'when last question' do
-      it 'proceed to end of the game with :won' do
-        15.times { game_w_questions.answer_current_question!("d") }
-        expect(game_w_questions.current_level).to eq(15)
-        expect(game_w_questions.status).to eq(:won)
       end
     end
   end
