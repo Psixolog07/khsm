@@ -124,31 +124,28 @@ RSpec.describe Game, type: :model do
 
     context 'when answer is correct' do
       let!(:level) { 0 }
-      let!(:answer_key) { "d" }
+      let!(:answer_key) { game_w_questions.current_game_question.correct_answer_key }
   
       context 'and question is last' do
-        let!(:level) { 14 }
-        let!(:prize) { 1_000_000 }
+        let!(:level) { Game::FIREPROOF_LEVELS.last }
+        let!(:prize) { Game::PRIZES.last }
 
-        let!(:game_w_questions_final) { 
-          14.times { 
-            game_w_questions.answer_current_question!(answer_key)
-          } 
-          
-          game_w_questions
-        }
-        
-  
+        before do 
+          game_w_questions.current_level = level
+          game_w_questions.prize = Game::PRIZES.last(2).first
+          game_w_questions.answer_current_question!(answer_key)
+        end
+
         it 'assigns final prize' do
-          expect(game_w_questions_final.prize).to eq(prize)
+          expect(game_w_questions.prize).to eq(prize)
         end
 
         it 'finishes the game' do
-          expect(game_w_questions_final.finished?).to be_truthy
+          expect(game_w_questions.finished?).to be true
         end
   
         it 'finishes game with status won' do
-          expect(game_w_questions_final.status).to eq(:won)
+          expect(game_w_questions.status).to eq(:won)
         end
       end
   
@@ -158,7 +155,7 @@ RSpec.describe Game, type: :model do
         end
   
         it 'continues game' do
-          expect(game_w_questions.finished?).to be_falsey
+          expect(game_w_questions.finished?).to be false
         end
         
         it 'continues game with status in_progress' do
@@ -167,26 +164,26 @@ RSpec.describe Game, type: :model do
       end
   
       context 'and time is over' do
-        let!(:game_w_questions_overdue) { 
+        before do 
           game_w_questions.created_at = 1.hour.ago
           game_w_questions.time_out!
-          game_w_questions }
+        end
 
         it 'finishes the game' do
-          expect(game_w_questions_overdue.finished?).to be_truthy
+          expect(game_w_questions.finished?).to be true
         end
   
         it 'finishes game with status timeout' do
-          expect(game_w_questions_overdue.status).to eq(:timeout)
+          expect(game_w_questions.status).to eq(:timeout)
         end
       end
     end
   
     context 'when answer is wrong' do
-      let!(:answer_key) { "a" }
+      let!(:answer_key) { ["a", "b", "c"].sample }
   
       it 'finishes the game' do
-        expect(game_w_questions.finished?).to be_truthy
+        expect(game_w_questions.finished?).to be true
       end
   
       it 'finishes with status fail' do
