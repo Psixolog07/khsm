@@ -132,7 +132,7 @@ RSpec.describe Game, type: :model do
 
         before do 
           game_w_questions.current_level = level
-          game_w_questions.prize = Game::PRIZES.last(2).first
+          game_w_questions.prize = Game::PRIZES[-2]
           game_w_questions.answer_current_question!(answer_key)
         end
 
@@ -180,7 +180,7 @@ RSpec.describe Game, type: :model do
     end
   
     context 'when answer is wrong' do
-      let!(:answer_key) { ["a", "b", "c"].sample }
+      let!(:answer_key) { ["a", "b", "c", "d"].grep_v(game_w_questions.current_game_question.correct_answer_key).sample }
   
       it 'finishes the game' do
         expect(game_w_questions.finished?).to be true
