@@ -23,6 +23,54 @@ RSpec.describe GamesController, type: :controller do
       # Во flash должно быть сообщение об ошибке
       expect(flash[:alert]).to be
     end
+
+    context 'tried to use #create and' do
+      before { post :create }
+      
+      it 'did not get 200 responce' do
+        expect(response.status).not_to eq(200)
+      end
+
+      it 'got redirected to login' do
+        expect(response).to redirect_to(new_user_session_path)
+      end
+
+      it 'saw flash message' do
+        expect(flash[:alert]).to be
+      end
+    end
+
+    context 'tried to use #answer and' do
+      before { put :answer,  id: game_w_questions.id }
+      
+      it 'did not get 200 responce' do
+        expect(response.status).not_to eq(200)
+      end
+
+      it 'got redirected to login' do
+        expect(response).to redirect_to(new_user_session_path)
+      end
+
+      it 'saw flash message' do
+        expect(flash[:alert]).to be
+      end
+    end
+
+    context 'tried to use #teke_money and' do
+      before { put :answer,  id: game_w_questions.id }
+      
+      it 'did not get 200 responce' do
+        expect(response.status).not_to eq(200)
+      end
+
+      it 'got redirected to login' do
+        expect(response).to redirect_to(new_user_session_path)
+      end
+
+      it 'saw flash message' do
+        expect(flash[:alert]).to be
+      end
+    end
   end
 
   context 'Usual user' do
