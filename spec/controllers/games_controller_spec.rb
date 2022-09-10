@@ -90,5 +90,17 @@ RSpec.describe GamesController, type: :controller do
       expect(response).to redirect_to(root_path)
       expect(flash[:alert]).to be
     end
+
+    it 'takes money' do
+      game_w_questions.update_attribute(:current_level, 2)
+      put :take_money, id: game_w_questions.id
+      game = assigns(:game)
+      expect(game.finished?).to be_truthy
+      expect(game.prize).to eq(200)
+      user.reload
+      expect(user.balance).to eq(200)
+      expect(response).to redirect_to(user_path(user))
+      expect(flash[:warning]).to be
+    end
   end  
 end
