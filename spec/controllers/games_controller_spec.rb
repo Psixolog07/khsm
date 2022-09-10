@@ -159,5 +159,29 @@ RSpec.describe GamesController, type: :controller do
       expect(response).to redirect_to(game_path(game_w_questions))
       expect(flash[:alert]).to be
     end
+
+    context 'gave wrong answer and' do
+      let!(:answer_key) do 
+        ["a", "b", "c", "d"].grep_v(game_w_questions.current_game_question.correct_answer_key).sample
+      end
+
+      before do
+        put :answer, id: game_w_questions.id, letter: answer_key
+      end
+
+      it 'game was over' do
+        game = assigns(:game)
+        expect(game.finished?).to be true
+      end
+
+      it 'was redirected to his profile' do
+        game = assigns(:game)
+        expect(response).to redirect_to(user_path(game.user))
+      end
+
+      it 'got flash message' do
+        expect(flash[:alert]).to be
+      end
+    end
   end  
 end
