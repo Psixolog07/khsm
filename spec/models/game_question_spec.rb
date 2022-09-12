@@ -88,5 +88,32 @@ RSpec.describe GameQuestion, type: :model do
       expect(ff).to include('b') # должен остаться правильный вариант
       expect(ff.size).to eq 2 # всего должно остаться 2 варианта
     end
+
+    describe '#friend_call' do
+      it 'hint was not used before' do
+        expect(game_question.help_hash).not_to include(:friend_call)
+      end
+
+      context 'hint used now and' do
+        before {game_question.add_friend_call}
+
+        it 'hint created' do
+          expect(game_question.help_hash).to include(:friend_call)
+        end
+
+        context 'hint hash exist and' do
+          before {@hash = game_question.help_hash[:friend_call]}
+          let!(:allowed_keys) {%w[a b c d]}
+
+          it 'it returns string' do
+            expect(@hash).to be_a(String)
+          end
+
+          it 'answer key is in allowed' do
+            expect(allowed_keys).to include(@hash.last.downcase)
+          end
+        end
+      end
+    end
   end
 end
