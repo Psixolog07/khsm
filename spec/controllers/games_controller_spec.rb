@@ -204,5 +204,54 @@ RSpec.describe GamesController, type: :controller do
       expect(game.current_game_question.help_hash[:audience_help].keys).to contain_exactly('a', 'b', 'c', 'd')
       expect(response).to redirect_to(game_path(game))
     end
+
+    context 'want to use fifty_fifty and' do
+      it 'current question do not have this hint' do
+        expect(game_w_questions.current_game_question.help_hash[:fifty_fifty]).not_to be
+      end
+
+      it 'hint was not used before' do
+        expect(game_w_questions.fifty_fifty_used).to be false
+      end
+
+      context 'uses fifty_fifty and' do
+        before do 
+          put :help, id: game_w_questions.id, help_type: :fifty_fifty
+          @game = assigns(:game)
+        end
+
+        let!(:allowed_keys) {%w[a b c d]}
+        let!(:hash) {@game.current_game_question.help_hash[:fifty_fifty]}
+        let!(:correct_key) {game_w_questions.current_game_question.correct_answer_key}
+
+        it 'game does not end' do
+          expect(@game.finished?).to be false
+        end
+
+        it 'hint was used' do
+          expect(@game.fifty_fifty_used).to be true
+        end
+
+        it 'hint hash exist' do
+          expect(hash).to be
+        end
+
+        it 'hash have allowed keys' do
+          expect(hash - allowed_keys).to be_empty
+        end
+
+        it 'hint have only 2 keys' do
+          expect(hash.size).to eq 2
+        end
+
+        it 'hint have correct key' do
+          expect(hash).to  include(correct_key)
+        end
+
+        it 'redirects to game' do
+          expect(response).to redirect_to(game_path(@game))
+        end
+      end
+    end
   end  
 end
