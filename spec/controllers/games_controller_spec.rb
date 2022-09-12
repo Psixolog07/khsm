@@ -205,51 +205,50 @@ RSpec.describe GamesController, type: :controller do
       expect(response).to redirect_to(game_path(game))
     end
 
-    context 'want to use fifty_fifty and' do
-      it 'current question do not have this hint' do
-        expect(game_w_questions.current_game_question.help_hash[:fifty_fifty]).not_to be
-      end
+    describe '#help' do
+      context 'fifty_fifty hint' do
+        context 'before use' do
+          it 'current question do not have this hint' do
+            expect(game_w_questions.current_game_question.help_hash[:fifty_fifty]).not_to be
+          end
 
-      it 'hint was not used before' do
-        expect(game_w_questions.fifty_fifty_used).to be false
-      end
-
-      context 'uses fifty_fifty and' do
-        before do 
-          put :help, id: game_w_questions.id, help_type: :fifty_fifty
-          @game = assigns(:game)
+          it 'hint was not used before' do
+            expect(game_w_questions.fifty_fifty_used).to be false
+          end
         end
 
-        let!(:allowed_keys) {%w[a b c d]}
-        let!(:hash) {@game.current_game_question.help_hash[:fifty_fifty]}
-        let!(:correct_key) {game_w_questions.current_game_question.correct_answer_key}
+        context 'after use' do
+          before {put :help, id: game_w_questions.id, help_type: :fifty_fifty}
+          let(:game) {assigns(:game)}
+          let!(:hash) {game.current_game_question.help_hash[:fifty_fifty]}
 
-        it 'game does not end' do
-          expect(@game.finished?).to be false
-        end
+          it 'game does not end' do
+            expect(game.finished?).to be false
+          end
 
-        it 'hint was used' do
-          expect(@game.fifty_fifty_used).to be true
-        end
+          it 'hint was used' do
+            expect(game.fifty_fifty_used).to be true
+          end
 
-        it 'hint hash exist' do
-          expect(hash).to be
-        end
+          it 'hint hash exist' do
+            expect(hash).to be
+          end
 
-        it 'hash have allowed keys' do
-          expect(hash - allowed_keys).to be_empty
-        end
+          it 'hash have allowed keys' do
+            expect(hash - %w[a b c d]).to be_empty
+          end
 
-        it 'hint have only 2 keys' do
-          expect(hash.size).to eq 2
-        end
+          it 'hint have only 2 keys' do
+            expect(hash.size).to eq 2
+          end
 
-        it 'hint have correct key' do
-          expect(hash).to  include(correct_key)
-        end
+          it 'hint have correct key' do
+            expect(hash).to  include(game_w_questions.current_game_question.correct_answer_key)
+          end
 
-        it 'redirects to game' do
-          expect(response).to redirect_to(game_path(@game))
+          it 'redirects to game' do
+            expect(response).to redirect_to(game_path(game))
+          end
         end
       end
     end
