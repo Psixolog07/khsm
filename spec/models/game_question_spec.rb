@@ -102,15 +102,20 @@ RSpec.describe GameQuestion, type: :model do
         end
 
         context 'hint hash exist and' do
-          before {@hash = game_question.help_hash[:friend_call]}
+          let(:hash) {game_question.help_hash[:friend_call]}
           let!(:allowed_keys) {%w[a b c d]}
+          let!(:hint_text) {I18n.t('game_help.friend_call').gsub(/%{.*}/, '')}
 
           it 'it returns string' do
-            expect(@hash).to be_a(String)
+            expect(hash).to be_a(String)
+          end
+
+          it 'it returns string with translated text' do
+            expect(hash).to include(hint_text)
           end
 
           it 'answer key is in allowed' do
-            expect(allowed_keys).to include(@hash.last.downcase)
+            expect(allowed_keys).to include(hash.last.downcase)
           end
         end
       end
