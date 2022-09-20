@@ -8,7 +8,7 @@ RSpec.describe GamesController, type: :controller do
 
   context "Unlogged in User" do
     describe "#show" do
-      before {get :show, id: game_w_questions.id}
+      before { get :show, id: game_w_questions.id }
       
       it "did not get 200 responce" do
         expect(response.status).not_to eq(200)
@@ -24,7 +24,7 @@ RSpec.describe GamesController, type: :controller do
     end
 
     describe "#create" do
-      before {post :create}
+      before { post :create }
       
       it "did not get 200 responce" do
         expect(response.status).not_to eq(200)
@@ -40,7 +40,7 @@ RSpec.describe GamesController, type: :controller do
     end
 
     describe "#answer" do
-      before {put :answer,  id: game_w_questions.id}
+      before { put :answer,  id: game_w_questions.id }
       
       it "did not get 200 responce" do
         expect(response.status).not_to eq(200)
@@ -56,7 +56,7 @@ RSpec.describe GamesController, type: :controller do
     end
 
     describe "#take_money" do
-      before {put :answer,  id: game_w_questions.id}
+      before { put :answer,  id: game_w_questions.id }
       
       it "did not get 200 responce" do
         expect(response.status).not_to eq(200)
@@ -73,69 +73,69 @@ RSpec.describe GamesController, type: :controller do
   end
 
   context "Logged in User" do
-    before {sign_in user}
-    let!(:allowed_keys) {%w[a b c d]}
-    let(:game) {assigns(:game)}
+    before { sign_in user }
+    let!(:allowed_keys) { %w[a b c d] }
+    let(:game) { assigns(:game) }
   
     describe "#create" do
-      context "one game created" do
+      context "try to create game" do
         before do
           generate_questions(15)
           post :create
         end
 
-        let!(:first_game) {assigns(:game)}
+        let!(:game) { assigns(:game) }
 
         it "game does not end" do
-          expect(first_game.finished?).to be false
-        end
-        
-        it "get 200 responce" do
-          expect(response.status).to eq(200)
+          expect(game.finished?).to be false
         end
 
         it "current user is equal to logged in one" do
-          expect(first_game.user).to eq(user)
+          expect(game.user).to eq(user)
         end 
 
         it "redirected to game" do
-          expect(response).to redirect_to(game_path(first_game))
+          expect(response).to redirect_to(game_path(game))
         end
 
         it "saw flash message" do
           expect(flash[:notice]).to be
         end
+      end
 
-        context "second game created" do
-          before {post :create}       
-          let!(:second_game) {assigns(:game)}
-  
-          it "first game does not end" do
-            expect(first_game.finished?).to be false
-          end
-  
-          it "amount of games did not change" do
-            expect {post :create}.to change(Game, :count).by(0)
-          end
-  
-          it "second game was not created" do
-            expect(second_game).to be nil
-          end
-  
-          it "redirected to first game" do
-            expect(response).to redirect_to(game_path(first_game))
-          end
-  
-          it "saw flash message" do
-            expect(flash[:alert]).to be
-          end
+      context "try to create two games at ones" do
+        before do
+          game_w_questions
+          post :create
+        end
+
+        let!(:game) { assigns(:game) }
+
+        it "first game does not end" do
+          expect(game_w_questions.finished?).to be false
+        end
+
+        it "amount of games did not change" do
+          expect { post :create }.to change(Game, :count).by(0)
+        end
+
+        it "second game was not created" do
+          expect(game).to be nil
+        end
+
+        it "redirected to first game" do
+          expect(response).to redirect_to(game_path(game_w_questions))
+        end
+
+        it "saw flash message" do
+          expect(flash[:alert]).to be
         end
       end
     end
 
     describe "#show" do
       context "user's game" do
-        before {get :show, id: game_w_questions.id}
+        before { get :show, id: game_w_questions.id }
 
         it "game does not end" do
           expect(game.finished?).to be false
@@ -155,8 +155,8 @@ RSpec.describe GamesController, type: :controller do
       end
 
       context "alien game" do
-        let(:alien_game) {FactoryGirl.create(:game_with_questions)}
-        before {get :show, id: alien_game.id}
+        let(:alien_game) { FactoryGirl.create(:game_with_questions) }
+        before { get :show, id: alien_game.id }
 
         it "did not get 200 responce" do
           expect(response.status).not_to eq(200)
@@ -174,8 +174,8 @@ RSpec.describe GamesController, type: :controller do
 
     describe "#answer" do
       context "answers correct" do
-        let!(:answer_key) {game_w_questions.current_game_question.correct_answer_key}
-        before {put :answer, id: game_w_questions.id, letter: answer_key}
+        let!(:answer_key) { game_w_questions.current_game_question.correct_answer_key }
+        before { put :answer, id: game_w_questions.id, letter: answer_key }
 
         it "game does not end" do
           expect(game.finished?).to be false
@@ -195,8 +195,8 @@ RSpec.describe GamesController, type: :controller do
       end
 
       context "answers incorrect" do
-        let!(:answer_key) {allowed_keys.grep_v(game_w_questions.current_game_question.correct_answer_key).sample}
-        before {put :answer, id: game_w_questions.id, letter: answer_key}
+        let!(:answer_key) { allowed_keys.grep_v(game_w_questions.current_game_question.correct_answer_key).sample }
+        before { put :answer, id: game_w_questions.id, letter: answer_key }
   
         it "game end" do
           expect(game.finished?).to be true
@@ -257,8 +257,8 @@ RSpec.describe GamesController, type: :controller do
         end
 
         context "after use" do
-          before {put :help, id: game_w_questions.id, help_type: :audience_help}
-          let!(:hash) {game.current_game_question.help_hash[:audience_help]}
+          before { put :help, id: game_w_questions.id, help_type: :audience_help }
+          let!(:hash) { game.current_game_question.help_hash[:audience_help] }
         
           it "game does not end" do
             expect(game.finished?).to be false
@@ -294,8 +294,8 @@ RSpec.describe GamesController, type: :controller do
         end
 
         context "after use" do
-          before {put :help, id: game_w_questions.id, help_type: :fifty_fifty}
-          let!(:hash) {game.current_game_question.help_hash[:fifty_fifty]}
+          before { put :help, id: game_w_questions.id, help_type: :fifty_fifty }
+          let!(:hash) { game.current_game_question.help_hash[:fifty_fifty] }
 
           it "game does not end" do
             expect(game.finished?).to be false
